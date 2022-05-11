@@ -1,0 +1,865 @@
+import 'dart:io';
+
+import 'dart:core';
+
+ 
+
+String choice = ""; //for menu choices
+
+List<Books> books = []; //class
+
+List<Books> lendbooks = []; //lent book class
+
+void main() {
+
+  menu(); // list all main menu
+
+}
+
+ 
+
+void lendBook() {
+
+  print("\x1B[2J\x1B[0;0H");
+
+  if (books.isEmpty) {
+
+    print("NO AVAILABLE BOOKS! \n");
+
+  } else {
+
+    String bcount = books.length.toString();
+
+    print("List of books $bcount\n");
+
+    //Header column
+
+    print(addWhiteSpace("ISBN", countLength("isbn", 4, true)) +
+
+        "     " +
+
+        addWhiteSpace("Title", countLength("title", 5, true)) +
+
+        "     " +
+
+        addWhiteSpace("Author", countLength("author", 6, true)) +
+
+        "     " +
+
+        addWhiteSpace("Genre", countLength("genre", 5, true)) +
+
+        "     " +
+
+        addWhiteSpace("Isborrowed", countLength("returndate", 11, true)));
+
+ 
+
+    //rows
+
+    for (int i = 0; i < books.length; i++) {
+
+      var b = books[i];
+
+      print(addWhiteSpace(b.isbn, countLength("isbn", b.isbn.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.title, countLength("title", b.title.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(
+
+              b.author, countLength("author", b.author.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.genre, countLength("genre", b.genre.length, false)) +
+
+          "     " +
+
+          addWhiteSpace((b.isborrowed ? "YES" : "NO"),
+
+              countLength("isborrowed", 3, false)) +
+
+          "     ");
+
+    }
+
+  }
+
+ 
+
+  print("\n");
+
+  if (books.isEmpty) {
+
+    stdout.writeln('Enter 0 to go back');
+
+    if (stdin.readLineSync().toString() == "0") {
+
+      menu();
+
+    }
+
+  } else {
+
+    stdout.writeln('Enter ISBN to continue or 0 to go back');
+
+    String input = stdin.readLineSync().toString();
+
+    if (input == "0") {
+
+      menu();
+
+    } else if (input != "") {
+
+      int index = -1;
+
+ 
+
+      for (int i = 0; i < books.length; i++) {
+
+        if (books[i].isbn.toUpperCase() == input.toUpperCase()) {
+
+          index = i;
+
+          break;
+
+        }
+
+      } //check index of books
+
+      if (index >= 0) {
+
+        if (!books[index].isborrowed) {
+
+          print("\x1B[2J\x1B[0;0H");
+
+          approveLendBook(index); // proceed to lend books
+
+        } else {
+
+          print("Books already issued to " +
+
+              books[index].lendName +
+
+              ", Enter 0 to choose another one!");
+
+          if (stdin.readLineSync().toString() == "0") {
+
+            lendBook();
+
+          }
+
+        }
+
+      } else {
+
+        print("No match!, Enter 1 to try again!");
+
+        if (stdin.readLineSync().toString() == "1") {
+
+          lendBook();
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+ 
+
+String addWhiteSpace(input, int counter) {
+
+  for (int i = 0; i < counter; i++) {
+
+    input += " ";
+
+  }
+
+  return input;
+
+} // making a table calculate width
+
+ 
+
+int countLength(field, int slength, bool isHeader) {
+
+  int length = 0;
+
+  if (!isHeader && field.toString().length > slength) {
+
+    length = field.toString().length;
+
+  }
+
+ 
+
+  for (int i = 0; i < books.length; i++) {
+
+    if (field == "title") {
+
+      if (length < books[i].title.length) {
+
+        length = books[i].title.length;
+
+      }
+
+    }
+
+    if (field == "author") {
+
+      if (length < books[i].author.length) {
+
+        length = books[i].author.length;
+
+      }
+
+    }
+
+    if (field == "genre") {
+
+      if (length < books[i].genre.length) {
+
+        length = books[i].genre.length;
+
+      }
+
+    }
+
+    if (field == "isbn") {
+
+      if (length < books[i].isbn.length) {
+
+        length = books[i].isbn.length;
+
+      }
+
+    }
+
+    if (field == "name") {
+
+      if (length < books[i].lendName.length) {
+
+        length = books[i].lendName.length;
+
+      }
+
+    }
+
+    if (field == "address") {
+
+      if (length < books[i].address.length) {
+
+        length = books[i].address.length;
+
+      }
+
+    }
+
+    if (field == "lenddate") {
+
+      if (length < books[i].lendDate.toString().length) {
+
+        length = books[i].lendDate.toString().length;
+
+      }
+
+    }
+
+    if (field == "returndate") {
+
+      if (length < books[i].returnDate.toString().length) {
+
+        length = books[i].returnDate.toString().length;
+
+      }
+
+    }
+
+  }
+
+  if (slength > length) {
+
+    if (isHeader) {
+
+      length = 0;
+
+    } else {
+
+      length = slength - length;
+
+    }
+
+  } else {
+
+    length = length - slength;
+
+  }
+
+  return length;
+
+} //get highest length of field
+
+ 
+
+void approveLendBook(int index) {
+
+  print("ISBN : " + books[index].isbn);
+
+  print("Title : " + books[index].title);
+
+  print("Author : " + books[index].author);
+
+  print("Genre : " + books[index].genre + "\n");
+
+ 
+
+  print("Enter full name :");
+
+  books[index].lendName = stdin.readLineSync().toString();
+
+  print("Enter address :");
+
+  books[index].address = stdin.readLineSync().toString();
+
+ 
+
+  stdout.writeln('\nEnter 1 to proceed or 0 to go back');
+
+  var input = stdin.readLineSync().toString();
+
+  if (input == "1") {
+
+    print("\x1B[2J\x1B[0;0H");
+
+    books[index].lendDate = DateTime.now();
+
+    print("ISBN : " + books[index].isbn);
+
+    print("Title : " + books[index].title);
+
+    print("Author : " + books[index].author);
+
+    print("Genre : " + books[index].genre);
+
+    print("Name : " + books[index].lendName);
+
+    print("Address : " + books[index].address);
+
+    print("Lend Date : " + books[index].lendDate.toString());
+
+ 
+
+    books[index].isborrowed = true;
+
+ 
+
+    var lb = Books();
+
+    lb.isbn = books[index].isbn;
+
+    lb.title = books[index].title;
+
+    lb.author = books[index].author;
+
+    lb.genre = books[index].genre;
+
+    lb.isborrowed = books[index].isborrowed;
+
+    lb.lendName = books[index].lendName;
+
+    lb.address = books[index].address;
+
+    lb.lendDate = books[index].lendDate;
+
+    lb.returnDate = books[index].returnDate;
+
+    lendbooks.add(lb); //added to lend books array
+
+ 
+
+    print("\nSuccessfully saved!");
+
+    stdout.writeln('Enter 0 to go back');
+
+    if (stdin.readLineSync().toString() == "0") {
+
+      menu();
+
+    }
+
+  } else if (input == "0") {
+
+    menu();
+
+  }
+
+}
+
+ 
+
+void viewBooks() {
+
+  print("\x1B[2J\x1B[0;0H");
+
+  if (books.isEmpty) {
+
+    print("NO AVAILABLE BOOKS! \n"); // print if no books available
+
+  } else {
+
+    String booklength = books.length.toString();
+
+    print("List of books $booklength");
+
+    int ab = 0, ib = 0;
+
+    for (int i = 0; i < books.length; i++) {
+
+      if (books[i].isborrowed) {
+
+        ib += 1;
+
+      } else {
+
+        ab += 1;
+
+      }
+
+    } //counting available and not available books
+
+ 
+
+    //header column
+
+    print("Available books ($ab)   |   Lent out books ($ib)\n");
+
+    print(addWhiteSpace("ISBN", countLength("isbn", 4, true)) +
+
+        "     " +
+
+        addWhiteSpace("TITLE", countLength("title", 5, true)) +
+
+        "     " +
+
+        addWhiteSpace("AUTHOR", countLength("author", 6, true)) +
+
+        "     " +
+
+        addWhiteSpace("GENRE", countLength("genre", 5, true)) +
+
+        "     " +
+
+        addWhiteSpace("LENT OUT", countLength("returndate", 11, true)));
+
+    //end header column
+
+ 
+
+    //rows
+
+    for (int i = 0; i < books.length; i++) {
+
+      var b = books[i];
+
+      print(addWhiteSpace(b.isbn, countLength("isbn", b.isbn.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.title, countLength("title", b.title.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(
+
+              b.author, countLength("author", b.author.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.genre, countLength("genre", b.genre.length, false)) +
+
+          "     " +
+
+          addWhiteSpace((b.isborrowed ? "YES" : "NO"),
+
+              countLength("isborrowed", 3, false)) +
+
+          "     ");
+
+    }
+
+    //end rows
+
+  }
+
+  stdout.writeln('\nEnter 1 to add books or 0 to go back');
+
+  choice = stdin.readLineSync().toString();
+
+  if (choice == "1") {
+
+    print("\x1B[2J\x1B[0;0H");
+
+    addBooks(); //add books
+
+  } else if (choice == "0") {
+
+    print("\x1B[2J\x1B[0;0H");
+
+    menu();
+
+  }
+
+}
+
+ 
+
+void viewLendBooks() {
+
+  // return and view all lend books info
+
+  print("\x1B[2J\x1B[0;0H");
+
+  if (lendbooks.isEmpty) {
+
+    print("NO AVAILABLE BOOKS! \n");
+
+  } else {
+
+    String lbcount = lendbooks.length.toString();
+
+    print("List of books $lbcount\n");
+
+    print(addWhiteSpace("ISBN", countLength("isbn", 4, true)) +
+
+        "     " +
+
+        addWhiteSpace("TITLE", countLength("title", 5, true)) +
+
+        "     " +
+
+        addWhiteSpace("AUTHOR", countLength("author", 6, true)) +
+
+        "     " +
+
+        addWhiteSpace("GENRE", countLength("genre", 5, true)) +
+
+        "     " +
+
+        addWhiteSpace("NAME", countLength("name", 4, true)) +
+
+        "     " +
+
+        addWhiteSpace("ADDRESS", countLength("address", 7, true)) +
+
+        "     " +
+
+        addWhiteSpace("LENT DATE", countLength("lenddate", 9, true)) +
+
+        "     " +
+
+        addWhiteSpace("RETURNED DATE", countLength("returndate", 11, true)));
+
+    for (int i = 0; i < lendbooks.length; i++) {
+
+      var b = lendbooks[i];
+
+      print(addWhiteSpace(b.isbn, countLength("isbn", b.isbn.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.title, countLength("title", b.title.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(
+
+              b.author, countLength("author", b.author.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.genre, countLength("genre", b.genre.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(
+
+              b.lendName, countLength("name", b.lendName.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(
+
+              b.address, countLength("address", b.address.length, false)) +
+
+          "     " +
+
+          addWhiteSpace(b.lendDate.toString(),
+
+              countLength("lenddate", b.lendDate.toString().length, false)) +
+
+          "     " +
+
+          addWhiteSpace(
+
+              b.returnDate.toString(),
+
+              countLength(
+
+                  "returndate", b.returnDate.toString().length, false)) +
+
+          "     ");
+
+    }
+
+  }
+
+ 
+
+  print("\nEnter ISBN number to return books or 0 to go back");
+
+  var input = stdin.readLineSync().toString();
+
+  if (input == "0") {
+
+    menu();
+
+  } else if (input != "") {
+
+    bool isExist = false;
+
+    for (int i = 0; i < books.length; i++) {
+
+      if (books[i].isbn.toUpperCase() == input.toUpperCase()) {
+
+        for (int lb = 0; lb < lendbooks.length; lb++) {
+
+          if (lendbooks[lb].isbn.toUpperCase() == input.toUpperCase() &&
+
+              lendbooks[lb].returnDate == null) {
+
+            books[i].isborrowed = false; // set the book to available
+
+            lendbooks[lb].returnDate = DateTime.now();
+
+            isExist = true;
+
+            print(
+
+                "Successfully returned! \nEnter 1 to refresh or 0 to go back");
+
+            var s = stdin.readLineSync().toString();
+
+            if (s == "0") {
+
+              menu();
+
+            } else if (s == "1") {
+
+              viewLendBooks();
+
+            }
+
+            break;
+
+          }
+
+        }
+
+        break;
+
+      }
+
+    }
+
+    if (!isExist) {
+
+      print("No match!, enter 1 to to retry");
+
+      if (stdin.readLineSync().toString() == "1") {
+
+        viewLendBooks();
+
+      }
+
+    }
+
+  }
+
+}
+
+ 
+
+void addBooks() {
+
+  // adding new books
+
+  var b = Books();
+
+  String isbn = getISBN();
+
+  b.isbn = isbn;
+
+  print("PLEASE INPUT ALL INFO OF BOOKS \n");
+
+  print("ISBN : $isbn");
+
+  print("Title :");
+
+  b.title = stdin.readLineSync().toString();
+
+ 
+
+  print("Author :");
+
+  b.author = stdin.readLineSync().toString();
+
+ 
+
+  print("Genre :");
+
+  b.genre = stdin.readLineSync().toString();
+
+ 
+
+  print("\x1B[2J\x1B[0;0H");
+
+  print("\nbooks Info\nISBN : " +
+
+      b.isbn +
+
+      "\nTITLE : " +
+
+      b.title +
+
+      "\nAUTHOR : " +
+
+      b.author +
+
+      "\nGENRE :" +
+
+      b.genre +
+
+      "\n");
+
+ 
+
+  stdout.writeln('Enter 1 to proceed or 0 to go back');
+
+  var input = stdin.readLineSync().toString();
+
+  if (input == "1") {
+
+    b.isborrowed = false;
+
+    books.add(b);
+
+    print("\x1B[2J\x1B[0;0H");
+
+    viewBooks();
+
+  } else if (input == "0") {
+
+    print("\x1B[2J\x1B[0;0H");
+
+    viewBooks();
+
+  }
+
+}
+
+ 
+
+void menu() {
+
+  print("\x1B[2J\x1B[0;0H");
+
+  stdout.write('\n *** WELCOME TO LIBRARY MANAGEMENT SYSTEM *** \n');
+
+  print('Menu:');
+
+  print('1) View all books');
+
+  print('2) Lend books');
+
+  print('3) Return books');
+
+  stdout.writeln('Choose your option by menu : ');
+
+  choice = stdin.readLineSync().toString();
+
+ 
+
+  if (choice == "1") {
+
+    viewBooks(); // view and add books
+
+  } else if (choice == "2") {
+
+    lendBook(); //lend a books
+
+  } else if (choice == "3") {
+
+    viewLendBooks(); // view and return all lent out books
+
+  }
+
+}
+
+ 
+
+String getISBN() {
+
+  //generating ISBN number
+
+  String ret = "ISBN";
+
+  ret += books.length > 99
+
+      ? "0" + (books.length + 1).toString()
+
+      : books.length > 9
+
+          ? "00" + (books.length + 1).toString()
+
+          : "000" + (books.length + 1).toString();
+
+  return ret;
+
+}
+
+ 
+
+class Books {
+
+  //class for books list
+
+  String author = "";
+
+  String title = "";
+
+  String genre = "";
+
+  String isbn = "";
+
+  String lendName = "";
+
+  DateTime? lendDate;
+
+  DateTime? returnDate;
+
+  String address = "";
+
+  bool isborrowed = false;
+
+}
+
+ 
+
+ 
